@@ -23,10 +23,13 @@ def predict():
         device_specs = request.get_json()
 
         # Prepare the input data for prediction
-        input_data = pd.DataFrame([device_specs])
+        required_features = ['battery_power', 'dual_sim', 'four_g', 'mobile_wt', 'n_cores', 'pc']
+
+        input_features = {feature: device_specs[feature] for feature in required_features}
+
+        input_data = pd.DataFrame([input_features])
 
         # Perform any necessary preprocessing on input_data here (e.g., feature scaling, encoding)
-
         num_pipeline = Pipeline([
             ('imputer', SimpleImputer(strategy='median')),
             ('scaler', StandardScaler())
@@ -44,8 +47,12 @@ def predict():
         # Make a prediction using the loaded model
         predicted_price = model.predict(input_preprocessed)
 
+        predicted_price_category = int(predicted_price[0])
+
+        price_categories = {0: "Low Cost", 1: "Medium Cost", 2: "High Cost", 3:"Very High Cost"}
+
         # Return the predicted price as a JSON response
-        response = {'predicted_price': predicted_price[0]}
+        response = {'predicted_price_category': price_categories[predicted_price_category]}
         return jsonify(response), 200
 
     except Exception as e:
