@@ -1,0 +1,1 @@
+curl -X POST -H "Content-Type: application/json" -d '{"feature1": value1, "feature2": value2, ...}' http://127.0.0.1:5000/predict
