@@ -1,0 +1,103 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Price Category</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Predict Price Category</h1>
+        <form id="predictForm" method="post">
+            <label for="battery_power">Battery Power:</label>
+            <input type="number" id="battery_power" name="battery_power" required>
+
+            <label for="dual_sim">Dual SIM (0: No, 1: Yes):</label>
+            <input type="number" id="dual_sim" name="dual_sim" min="0" max="1" required>
+
+            <label for="four_g">4G (0: No, 1: Yes):</label>
+            <input type="number" id="four_g" name="four_g" min="0" max="1" required>
+
+            <label for="mobile_wt">Mobile Weight:</label>
+            <input type="number" id="mobile_wt" name="mobile_wt" required>
+
+            <label for="n_cores">Number of Cores:</label>
+            <input type="number" id="n_cores" name="n_cores" required>
+
+            <label for="pc">Primary Camera (MP):</label>
+            <input type="number" id="pc" name="pc" required>
+
+            <button type="submit">Predict</button>
+        </form>
+        <div id="predictionResult">
+            <!-- This will be populated with the prediction result -->
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to handle form submission and display prediction result
+        document.getElementById('predictForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var form = event.target;
+            var formData = new FormData(form);
+            
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predictionResult').innerHTML = '<p>Predicted Price Category: ' + data.predicted_price_category + '</p>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

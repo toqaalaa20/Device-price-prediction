@@ -1,5 +1,4 @@
 import requests
-import json
 
 # Define the API endpoint URL
 api_url = 'http://127.0.0.1:5000/predict'  # Replace with your API endpoint URL

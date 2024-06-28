@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+# app.py
+from flask import Flask, render_template, request, jsonify
 import pickle
 import pandas as pd
 from sklearn.impute import SimpleImputer
@@ -7,29 +8,36 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
 
 
-# Initialize Flask application
+
 app = Flask(__name__)
 
-# Load the trained model
 model_file_path = 'logistic_regression_model.pkl'
 with open(model_file_path, 'rb') as file:
     model = pickle.load(file)
 
-# Define a route for the prediction endpoint
-@app.route('/predict', methods=['POST'])
+
+price_categories = {0: "Low Cost", 1: "Medium Cost", 2: "High Cost", 3: "Very High Cost"}
+
+# Route for home page
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+# Route for prediction form page
+@app.route('/predict', methods=['GET', 'POST'])
 def predict():
-    try:
-        # Get the request data (device specifications)
-        device_specs = request.get_json()
+    if request.method == 'POST':
+        # Retrieve the form data
+        battery_power = int(request.form['battery_power'])
+        dual_sim = int(request.form['dual_sim'])
+        four_g = int(request.form['four_g'])
+        mobile_wt = int(request.form['mobile_wt'])
+        n_cores = int(request.form['n_cores'])
+        pc = int(request.form['pc'])
 
-        # Prepare the input data for prediction
-        required_features = ['battery_power', 'dual_sim', 'four_g', 'mobile_wt', 'n_cores', 'pc']
+        input_data = pd.DataFrame([[battery_power, dual_sim, four_g, mobile_wt, n_cores, pc]],
+                                  columns=['battery_power', 'dual_sim', 'four_g', 'mobile_wt', 'n_cores', 'pc'])
 
-        input_features = {feature: device_specs[feature] for feature in required_features}
-
-        input_data = pd.DataFrame([input_features])
-
-        # Perform any necessary preprocessing on input_data here (e.g., feature scaling, encoding)
         num_pipeline = Pipeline([
             ('imputer', SimpleImputer(strategy='median')),
             ('scaler', StandardScaler())
@@ -44,20 +52,15 @@ def predict():
         ])
         input_preprocessed = preprocessor.fit_transform(input_data)
 
-        # Make a prediction using the loaded model
         predicted_price = model.predict(input_preprocessed)
 
         predicted_price_category = int(predicted_price[0])
 
         price_categories = {0: "Low Cost", 1: "Medium Cost", 2: "High Cost", 3:"Very High Cost"}
-
-        # Return the predicted price as a JSON response
         response = {'predicted_price_category': price_categories[predicted_price_category]}
-        return jsonify(response), 200
+        return jsonify(response)
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    return render_template('index.html')
 
-# Run the Flask application
 if __name__ == '__main__':
     app.run(debug=True)
