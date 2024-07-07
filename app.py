@@ -2,11 +2,7 @@
 from flask import Flask, render_template, request, jsonify
 import pickle
 import pandas as pd
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import StandardScaler
-
+from preprocessing import preprocess_data
 
 
 app = Flask(__name__)
@@ -38,19 +34,8 @@ def predict():
         input_data = pd.DataFrame([[battery_power, dual_sim, four_g, mobile_wt, n_cores, pc]],
                                   columns=['battery_power', 'dual_sim', 'four_g', 'mobile_wt', 'n_cores', 'pc'])
 
-        num_pipeline = Pipeline([
-            ('imputer', SimpleImputer(strategy='median')),
-            ('scaler', StandardScaler())
-        ])
-
-        binary_features = ["dual_sim", "four_g"]
-        num_features = ["battery_power", "pc", "mobile_wt", "n_cores"]
-
-        preprocessor = ColumnTransformer([
-            ('num', num_pipeline, num_features),
-            ('binary', 'passthrough', binary_features)
-        ])
-        input_preprocessed = preprocessor.fit_transform(input_data)
+        
+        input_preprocessed, _ = preprocess_data(input_data)
 
         predicted_price = model.predict(input_preprocessed)
 

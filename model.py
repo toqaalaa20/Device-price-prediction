@@ -39,7 +39,7 @@ y = data['price_range']
 X = X[selected_feature_names]
 
 binary_features = ["dual_sim",  "four_g"]
-num_features= ["battery_power", "mobile_wt", "pc"]
+num_features= ["battery_power", "mobile_wt", "pc", "n_cores"]
 
 num_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
@@ -61,6 +61,7 @@ model = LogisticRegression(C=10, class_weight=None, dual=False, fit_intercept=Tr
                            warm_start=False)
 
 
+print(X_preprocessed)
 
 model.fit(X_preprocessed, y)
 
